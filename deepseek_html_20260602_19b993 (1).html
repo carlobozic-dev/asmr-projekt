@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ASMR Relax | Potpuni Ambijent</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+        overflow: hidden; 
+        font-family: 'Segoe UI', sans-serif; 
+        height: 100vh; 
+        background: #000; 
+    }
+
+    #bgImage {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+        backdrop-filter: blur(1px);
+        z-index: 1;
+    }
+
+    .container {
+        position: relative;
+        z-index: 2;
+        height: 100vh;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 40px;
+    }
+
+    .panel {
+        width: 380px;
+        background: rgba(15, 20, 30, 0.85);
+        backdrop-filter: blur(25px);
+        border-radius: 30px;
+        padding: 30px;
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        color: white;
+    }
+
+    h1 { font-weight: 300; margin-bottom: 25px; text-align: center; letter-spacing: 1px; }
+
+    .control { margin-bottom: 20px; }
+    label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; opacity: 0.9; }
+
+    select {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        color: white;
+        outline: none;
+        cursor: pointer;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        height: 4px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
+        appearance: none;
+        outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 15px; height: 15px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .buttons { display: flex; gap: 10px; margin-top: 25px; }
+    button {
+        flex: 1;
+        padding: 15px;
+        border-radius: 15px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    #playBtn { background: #fff; color: #000; }
+    #stopBtn { background: rgba(255,255,255,0.1); color: #fff; }
+    button:hover { transform: scale(1.03); opacity: 0.9; }
+
+    .status {
+        text-align: center;
+        font-size: 0.7rem;
+        margin-top: 15px;
+        opacity: 0.6;
+    }
+</style>
+</head>
+<body>
+
+<img id="bgImage" src="" alt="Ambijent">
+<div class="overlay"></div>
+
+<div class="container">
+    <div class="panel">
+        <h1>ASMR Studio</h1>
+
+        <div class="control">
+            <label>🏞️ Izaberi scenu</label>
+            <select id="sceneSelect">
+                <option value="suma">🌲 Gusta Šuma</option>
+                <option value="more">🏝️ Tropska Plaža</option>
+                <option value="planina">⛰️ Snježni Vrhovi</option>
+                <option value="vatra">🔥 Pucketanje Vatre</option>
+                <option value="jezero">💧 Mirno Jezero</option>
+                <option value="vodopad">💦 Moćni Vodopad</option>
+                <option value="nocna_suma">✨ Noć pod Zvijezdama</option>
+            </select>
+        </div>
+
+        <hr style="opacity:0.1; margin-bottom:20px;">
+
+        <div class="control">
+            <label>🌧️ Kiša <span id="v1">0%</span></label>
+            <input type="range" id="s1" min="0" max="1" step="0.01" value="0">
+        </div>
+
+        <div class="control">
+            <label>🌊 Valovi <span id="v2">0%</span></label>
+            <input type="range" id="s2" min="0" max="1" step="0.01" value="0">
+        </div>
+
+        <div class="control">
+            <label>🍃 Vjetar <span id="v3">0%</span></label>
+            <input type="range" id="s3" min="0" max="1" step="0.01" value="0">
+        </div>
+
+        <div class="control">
+            <label>🔥 Vatra <span id="v4">0%</span></label>
+            <input type="range" id="s4" min="0" max="1" step="0.01" value="0">
+        </div>
+
+        <div class="buttons">
+            <button id="playBtn">POKRENI ZVUK</button>
+            <button id="stopBtn">UGASI SVE</button>
+        </div>
+        <div class="status" id="statusText">Odaberi scenu i uživaj</div>
+    </div>
+</div>
+
+<script>
+    // ==============================================
+    // 🔴 VAŠE SLIKE - ZAMIJENITE MOJ_LINK_OVDJE sa svojim linkovima
+    // ==============================================
+    const SCENES = {
+        // 🌲 ŠUMA - stavite svoj link za šumu
+        suma: "https://treesforall.nl/app/uploads/2022/03/Bos-Nederland-Epe-e1719389547661.jpg",
+        
+        // 🏝️ PLAŽA - Maldive slika (radi)
+        more: "https://static.vecteezy.com/system/resources/previews/011/826/370/large_2x/maldives-islands-ocean-tropical-beach-exotic-sea-lagoon-palm-trees-over-white-sand-idyllic-nature-landscape-amazing-beach-scenic-shore-bright-tropical-summer-sun-and-blue-sky-with-light-clouds-photo.jpg",
+        
+        // ⛰️ PLANINA - Fuji planina (radi)
+        planina: "https://putnikofer.hr/wp-content/uploads/2024/05/fuji-planina-1200x800.png",
+        
+        // 🔥 VATRA - stavite svoj link za vatru
+        vatra: "https://cdn.shopify.com/s/files/1/0920/4154/4024/files/stephane-juban-DI8Bf6K1134-unsplash_1.jpg?v=1751381954",
+        
+        // 💧 JEZERO - vaša slika jezera (radi)
+        jezero: "https://img.magnific.com/free-photo/lake-surrounded-by-trees_198169-2.jpg?semt=ais_hybrid&w=740&q=80",
+        
+        // 💦 VODOPAD - stavite svoj link za vodopad
+        vodopad: "https://www.bgr.com/bgr/science/earths-largest-waterfall-isnt-the-one-youd-expect/large-waterfall-with-person-standing-in-front-of-it.jpg",
+        
+        // ✨ NOĆNA ŠUMA - zvijezda padalica (radi)
+        nocna_suma: "https://www.logicno.com/wp-content/uploads/2017/05/Zvijezda-padalica.jpg"
+    };
+
+    // AUDIO ZVUKOVI
+    const audio = {
+        rain: new Audio("https://cdn.pixabay.com/audio/2022/07/04/audio_3432049d5c.mp3"),
+        waves: new Audio("https://www.soundjay.com/nature/sounds/ocean-waves-1.mp3"),
+        wind: new Audio("https://www.soundjay.com/nature/sounds/wind-in-pines-1.mp3"),
+        fire: new Audio("https://www.soundjay.com/nature/sounds/campfire-1.mp3")
+    };
+
+    Object.values(audio).forEach(a => {
+        a.loop = true;
+        a.volume = 0;
+    });
+
+    const bg = document.getElementById('bgImage');
+    const sel = document.getElementById('sceneSelect');
+    const status = document.getElementById('statusText');
+
+    function updateScene(val) {
+        bg.style.opacity = 0;
+        setTimeout(() => {
+            bg.src = SCENES[val];
+            bg.style.opacity = 1;
+        }, 500);
+    }
+
+    function bindSlider(sId, vId, audioKey) {
+        const slider = document.getElementById(sId);
+        const valDisp = document.getElementById(vId);
+        slider.addEventListener('input', () => {
+            const v = slider.value;
+            audio[audioKey].volume = v;
+            valDisp.innerText = Math.round(v * 100) + "%";
+            if(v > 0) audio[audioKey].play().catch(() => {});
+        });
+    }
+
+    bindSlider('s1', 'v1', 'rain');
+    bindSlider('s2', 'v2', 'waves');
+    bindSlider('s3', 'v3', 'wind');
+    bindSlider('s4', 'v4', 'fire');
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+        Object.values(audio).forEach(a => {
+            if(a.volume > 0) a.play().catch(err => console.log("Audio trigger error"));
+        });
+        status.innerText = "Slušate: " + sel.options[sel.selectedIndex].text;
+    });
+
+    document.getElementById('stopBtn').addEventListener('click', () => {
+        Object.values(audio).forEach(a => a.pause());
+        status.innerText = "Zvukovi zaustavljeni";
+    });
+
+    sel.addEventListener('change', (e) => updateScene(e.target.value));
+
+    window.onload = () => updateScene('suma');
+</script>
+
+</body>
+</html>
